@@ -1,0 +1,105 @@
+# =============================================================================
+# Multi-Model Experiment Matrix
+#
+# Goal: train 6 reasonable variants on NVIDIA T4 and select the best option.
+# Run with: python scripts/run_experiments.py --matrix configs/experiment_matrix.yaml
+# =============================================================================
+
+base_config: "configs/train_config.yaml"
+
+selection_policy:
+  primary_metric: "overall_score"
+  note: "Select the model using speaker similarity, CER/WER, MOS, and generation speed."
+
+experiments:
+  - name: "m01_baseline_stable"
+    display_name: "M01 - Stable Baseline"
+    description: "Standard fine-tuning from the base model, used as the comparison baseline."
+    overrides:
+      training:
+        epochs: 100
+        learning_rate: 1.0e-5
+        warmup_steps: 200
+        weight_decay: 0.01
+        max_grad_norm: 1.0
+        seed: 42
+      augmentation:
+        enabled: false
+
+  - name: "m02_low_lr_preserve_voice"
+    display_name: "M02 - Low LR Voice Preservation"
+    description: "Lower learning rate to reduce the risk of distorting speaker identity."
+    overrides:
+      training:
+        epochs: 120
+        learning_rate: 5.0e-6
+        warmup_steps: 250
+        weight_decay: 0.01
+        max_grad_norm: 1.0
+        seed: 43
+      augmentation:
+        enabled: false
+
+  - name: "m03_fast_adaptation"
+    display_name: "M03 - Fast Adaptation"
+    description: "Higher learning rate with fewer epochs to test fast convergence."
+    overrides:
+      training:
+        epochs: 60
+        learning_rate: 2.0e-5
+        warmup_steps: 120
+        weight_decay: 0.01
+        max_grad_norm: 0.8
+        seed: 44
+      augmentation:
+        enabled: false
+
+  - name: "m04_noise_robust"
+    display_name: "M04 - Noise-Robust Training"
+    description: "Light noise, gain, and time-shift augmentation to improve robustness."
+    overrides:
+      training:
+        epochs: 100
+        learning_rate: 8.0e-6
+        warmup_steps: 200
+        weight_decay: 0.01
+        max_grad_norm: 1.0
+        seed: 45
+      augmentation:
+        enabled: true
+        gain_db_range: [-2.0, 2.0]
+        noise_snr_db_range: [28.0, 40.0]
+        time_shift_ms: 30
+
+  - name: "m05_regularized_general"
+    display_name: "M05 - Stronger Regularization"
+    description: "Stronger weight decay and gradient clipping to reduce overfitting on small personal datasets."
+    overrides:
+      training:
+        epochs: 100
+        learning_rate: 7.0e-6
+        warmup_steps: 220
+        weight_decay: 0.05
+        max_grad_norm: 0.7
+        seed: 46
+      augmentation:
+        enabled: true
+        gain_db_range: [-1.5, 1.5]
+        noise_snr_db_range: [32.0, 45.0]
+        time_shift_ms: 20
+
+  - name: "m06_large_effective_batch"
+    display_name: "M06 - Larger Effective Batch"
+    description: "Keeps physical batch_size=1 to avoid OOM, while increasing gradient accumulation."
+    overrides:
+      training:
+        epochs: 100
+        batch_size: 1
+        gradient_accumulation_steps: 12
+        learning_rate: 9.0e-6
+        warmup_steps: 240
+        weight_decay: 0.01
+        max_grad_norm: 1.0
+        seed: 47
+      augmentation:
+        enabled: false

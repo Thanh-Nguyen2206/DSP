@@ -1,0 +1,51 @@
+experiment:
+  name: m03_fast_adaptation
+  display_name: M03 - Fast Adaptation
+  description: Higher learning rate with fewer epochs to test fast convergence.
+model:
+  repo_id: hynt/F5-TTS-Vietnamese-ViVoice
+  ckpt_filename: model_last.pt
+  vocab_filename: config.json
+  dit:
+    dim: 1024
+    depth: 22
+    heads: 16
+    ff_mult: 2
+    text_dim: 512
+    conv_layers: 4
+audio:
+  sample_rate: 24000
+  n_fft: 1024
+  hop_length: 256
+  win_length: 1024
+  n_mel_channels: 100
+data:
+  processed_dir: data/processed
+  metadata_path: data/metadata/metadata.csv
+  num_workers: 2
+training:
+  epochs: 60
+  batch_size: 1
+  gradient_accumulation_steps: 8
+  learning_rate: 2.0e-05
+  weight_decay: 0.01
+  betas:
+  - 0.9
+  - 0.999
+  eps: 1.0e-08
+  warmup_steps: 120
+  scheduler: cosine
+  min_lr: 1.0e-07
+  max_grad_norm: 0.8
+  mixed_precision: fp16
+  seed: 44
+checkpoint:
+  save_dir: checkpoints/experiments/m03_fast_adaptation
+  save_every_n_steps: 500
+  keep_last_n: 3
+logging:
+  log_dir: logs/experiments/m03_fast_adaptation
+  log_every_n_steps: 10
+  tensorboard: true
+augmentation:
+  enabled: false

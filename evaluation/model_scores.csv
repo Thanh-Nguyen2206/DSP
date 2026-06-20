@@ -1,0 +1,7 @@
+experiment,speaker_similarity,cer,wer,mos,latency_sec,notes
+m01_baseline_stable,,,,,,
+m02_low_lr_preserve_voice,,,,,,
+m03_fast_adaptation,,,,,,
+m04_noise_robust,,,,,,
+m05_regularized_general,,,,,,
+m06_large_effective_batch,,,,,,

@@ -1,0 +1,51 @@
+experiment:
+  name: m02_low_lr_preserve_voice
+  display_name: M02 - Low LR Voice Preservation
+  description: Lower learning rate to reduce the risk of distorting speaker identity.
+model:
+  repo_id: hynt/F5-TTS-Vietnamese-ViVoice
+  ckpt_filename: model_last.pt
+  vocab_filename: config.json
+  dit:
+    dim: 1024
+    depth: 22
+    heads: 16
+    ff_mult: 2
+    text_dim: 512
+    conv_layers: 4
+audio:
+  sample_rate: 24000
+  n_fft: 1024
+  hop_length: 256
+  win_length: 1024
+  n_mel_channels: 100
+data:
+  processed_dir: data/processed
+  metadata_path: data/metadata/metadata.csv
+  num_workers: 2
+training:
+  epochs: 120
+  batch_size: 1
+  gradient_accumulation_steps: 8
+  learning_rate: 5.0e-06
+  weight_decay: 0.01
+  betas:
+  - 0.9
+  - 0.999
+  eps: 1.0e-08
+  warmup_steps: 250
+  scheduler: cosine
+  min_lr: 1.0e-07
+  max_grad_norm: 1.0
+  mixed_precision: fp16
+  seed: 43
+checkpoint:
+  save_dir: checkpoints/experiments/m02_low_lr_preserve_voice
+  save_every_n_steps: 500
+  keep_last_n: 3
+logging:
+  log_dir: logs/experiments/m02_low_lr_preserve_voice
+  log_every_n_steps: 10
+  tensorboard: true
+augmentation:
+  enabled: false
